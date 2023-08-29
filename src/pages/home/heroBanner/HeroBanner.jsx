@@ -16,7 +16,7 @@ const HeroBanner = () => {
     const { url } = useSelector((store) => store.home);
 
     const { data, loading } = useFetch("/movie/upcoming");
-    console.log(data);
+    console.log("data:", data);
 
     useEffect(() => {
         const bg = url.backdrop +
@@ -31,7 +31,7 @@ const HeroBanner = () => {
         }
     }
 
-
+    console.log("Background Url:", background);
 
     return (
         <div className="heroBanner">

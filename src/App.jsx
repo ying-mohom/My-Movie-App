@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 
 import { UseSelector, useDispatch, useSelector } from 'react-redux';
-import { getApiConfiguration } from './store/homeSlice';
+import { getApiConfiguration, getGenres } from './store/homeSlice';
 
 
 
@@ -25,16 +25,17 @@ const App = () => {
 
     const url = useSelector((store) =>
         store.home);
-    console.log(url);
+    console.log("Data from store:", url);
 
     useEffect(() => {
         fetchApiConfig();
+        genresCall();
     }, [])
 
     const fetchApiConfig = () => {
         fetchDataFromApi('/configuration')
             .then((res) => {
-                console.log(res);
+                console.log("Configuration response:", res); //Get List of data
 
                 const url = {
                     backdrop: res.images.secure_base_url +
@@ -46,10 +47,31 @@ const App = () => {
                 }
                 dispatch(getApiConfiguration(url))
             })
+    };
+
+    const genresCall = async () => {
+        let promises = []
+        let endPoints = ["tv", "movie"]
+        let allGenres = {}
+
+        endPoints.forEach((url) => {
+            promises.push(fetchDataFromApi(`/genre/${url}/list`))
+        })
+
+        const data = await Promise.all(promises);
+        data.map(({ genres }) => {
+            return genres.map((item) => (allGenres[item.id] =
+                item))
+        })
+
+        // console.log(allGenres);
+        dispatch(getGenres(allGenres));
     }
+
+
     return (
         <BrowserRouter>
-            {/* <Header /> */}
+            <Header />
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/:mediaType/:id" element={<Details />} />
